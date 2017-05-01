@@ -124,7 +124,7 @@ h3.homeNotice {
     background-color: white;
     text-align: center;
     width: 80%;
-    margin-top: 10%;
+    margin-top: 10%!important;
     margin-right: auto;
     margin-left: auto;
 }
@@ -294,8 +294,8 @@ p.welcomeDigest>span {
 
 #digestDiv {
     font-size: 1.3em!important;
-    margin-bottom: 20px;
-    margin-right: 35px;
+    margin-bottom: 20px!important;
+    margin-right: 35px!important;
 }
 #digestBtn {
     margin-right: 0;
