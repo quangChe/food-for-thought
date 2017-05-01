@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+
+<div id="postDisp" class="ui grid">
+<!-- Table displaying the post -->
+    <table class="ui definition table">
+        <tbody>
+            <tr>
+                <td class="two wide column">
+                    <a href="/{{post.key().id()}}/digest">
+                        <div id="digestDiv" class="ui labeled button" tabindex="0">
+                            <div id="digestBtn" class="ui button">
+                                <i class="food icon"></i> DIGEST
+                            </div>
+                            <a class="ui basic left pointing label">
+                              {{post.digests}}
+                            </a>
+                        </div>
+                    </a>
+                    <span class="error-msg">{{redirect_msg}}</span>
+                    <!-- <a class="ui green button" href="/{{post.key().id()}}/digest">
+                        <i class="large food icon"></i>
+                    </a>
+                        <p class="digestNum">{{post.digests}}</p>
+                         -->
+                </td>
+                <td>
+                    <p class="viewBody">"{{post.body}}"</p>
+                    <p class="blogPoster">-{{post.poster}} <span class="date">({{post.date.strftime("%b %d, %Y")}})</span></p>
+                    {% if user %}
+                    <a class="button blogView" href="/{{post.key().id()}}/addcomment">
+                        <button class="ui black button">DISCUSS</button>
+                    </a>
+                        {% if post.poster == user.username %}
+                            <a class="button blogView" href="/{{post.key().id()}}/delete">
+                                <button class="ui red button">DELETE</button>
+                            </a>
+                            <a class="button blogView" href="/{{post.key().id()}}/edit">
+                                <button class="ui button">EDIT</button>
+                            </a>
+                        {% endif %}
+                    {% endif %}
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+<!-- Discussion section -->
+{% if has_comment %}
+    <div class="ui inverted top attached center aligned segment">
+        <h1 class="commentSection"> Discussion </h1>
+    </div>
+    <div class="ui bottom attached segment">
+    {% for comment in comments %}
+        <table class="ui definition table">
+            <tbody>
+                <tr>
+                    <td class="four wide column">
+                        <p class="commentPoster">{{comment.poster}}</p>
+                        {% if user.username == comment.poster %}
+                        <a class="button commentView" href="/{{post.key().id()}}/{{comment.key().id()}}/delete">
+                            <button class="ui red button">DELETE</button>
+                        </a>
+                        <a class="button commentView" href="/{{post.key().id()}}/{{comment.key().id()}}/edit">
+                            <button class="ui button">EDIT</button>
+                        </a>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <p class="commentBody">{{comment.body}}</p>
+                        <p class="commentDate">({{comment.date.strftime("%b %d, %Y")}})</p>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    {% endfor %}
+    </div>
+{% else %}
+    <div class="ui inverted top attached center aligned segment">
+        <h1> Discussion </h1>
+    </div>
+    <div class="ui bottom attached segment">
+        <p class="notice">
+            No comments to show yet... <a href="/{{post.key().id()}}/addcomment">Discuss this thought!</a>
+        </p>
+    </div>
+{% endif %}
+</div>
+
+{% endblock %}

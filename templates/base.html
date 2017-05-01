@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Food for Thought</title>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/5.0.0/normalize.min.css">
+        <link rel="stylesheet" href="/static/styles.css">
+        <link rel="stylesheet" href="/static/semantic.min.css">
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Josefin+Sans:100,400">
+    </head>
+    <body>
+        <div class="ui fixed menu grid">
+            <div class="header item"><img src="/images/icon.png"></div>
+            <a class="item" href="/">Home</a>
+            <a id="special" class="item" href="/newpost">Feed a Thought</a>
+            {% if user %}
+                <div id="signedIn" class="ui simple dropdown right item">
+                    <div class="text">{{user.username}}</div>
+                    <i class="user icon"></i><i class="dropdown icon"></i>
+                    <div class="menu">
+                        <a class="active item button" href="/welcome">My Profile</a>
+                        <a class="item button" href="/logout">Logout</a>
+                    </div>
+                </div>
+            {% elif not user %}
+                <div id="signedOut" class="ui simple dropdown right item">
+                    <i class="lock icon"></i><i class="user icon"></i><i class="dropdown icon"></i>
+                    <div class="menu">
+                        <a class="item button" href="/login">Login</a>
+                        <a class="active item button" href="/signup">Sign Up!</a>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+            {% block content %}
+            {% endblock %}
+    </body>
+</html>

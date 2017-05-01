@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div id="welcome" class="ui grid">
+    <div class="ui container">
+        <div class="ui inverted top attached center aligned segment">
+            <h1> Welcome, {{user.username}}. </h1>
+        </div>
+        <div class="ui bottom attached segment">
+            <h2 class="postsHead"> My Thoughts: <h2>
+            <span class="error-msg">{{redirect_msg}}</span>
+            {% if has_posts %}
+                {% for post in posts %}
+                    <table id="welcomeTab" class="ui definition table">
+                        <tbody>
+                            <tr>
+                                <td class="two wide column">
+                                    <p class="welcomeDigest"><span>Digests:</span>{{post.digests}}</p>
+                                </td>
+                                <td class="postDisp">
+                                    <p class="myPostBody">"{{post.body}}"</p>
+                                    <p class="date">({{post.date.strftime("%b %d, %Y")}})</p>
+                                    <a class="button myPostBtn" href="/{{post.key().id()}}">
+                                        <button class="ui black button">VIEW</button>
+                                    </a>
+                                    <a class="button myPostBtn" href="/{{post.key().id()}}/delete">
+                                        <button class="ui red button">DELETE</button>
+                                    </a>
+                                    <a class="button myPostBtn" href="/{{post.key().id()}}/edit">
+                                        <button class="ui button">EDIT</button>
+                                    </a>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                {% endfor %}
+            {% else %}
+                <h3 class="notice">
+                    Don't restrain the brilliance of your mind... <a href="/newpost">Share your thoughts to inspire others!</a>
+                </h3>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+{% endblock %}

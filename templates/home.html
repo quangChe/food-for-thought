@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div id="title" class="ui grid">
+    <div class="row">
+        <div class="left floated column">
+            <img id="titleLogo" class="ui fluid image" src="../images/icon.png">
+            <h1 id="titleText">Food<span>for</span><span>Thought</span></h1>
+        </div>
+    </div>
+</div>
+<div id="body" class="ui grid">
+{% if has_posts %}
+    {% for post in posts %}
+        <table class="ui definition table">
+            <tbody>
+                <tr>
+                    <td class="two wide column">
+                        <p class="homeDigest"><span>Digests:</span>{{post.digests}}</p>
+                    </td>
+                    <td class="blogContent">
+                        <p class="blogBody">"{{post.body}}"</p>
+                        <p class="blogPoster">-{{post.poster}} <span class="date">({{post.date.strftime("%b %d, %Y")}})</span></p>
+                        {% if user %}
+                        <a class="button" href="/{{post.key().id()}}">
+                            <button id="homeViewBtn" class="ui black button">VIEW THOUGHT</button>
+                        </a>
+                        {% else %}
+                        <a class="button" href="/login?error=1">
+                            <button id="homeViewBtn" class="ui black button">VIEW THOUGHT</button>
+                        </a>
+                        {% endif %}
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    {% endfor %}
+{% else %}
+    <h3 class="homeNotice">
+        No thoughts have been shared yet... <a href="/newpost">Share your thoughts to inspire others!</a>
+    </h3>
+{% endif %}
+</div>
+
+{% endblock %}

@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="ui middle aligned center aligned grid">
+	<div class="column">
+        <span class="error-msg">{{redirect_msg}}</span>
+	    <h2 class="ui image header">
+	    	<div class="content">
+	    		Discuss the thought:
+	    	</div>
+	    </h2>
+
+		<form method="POST" class="ui large form">
+      		<div class="ui stacked segment">
+        		<div class="field">
+            		<textarea name="body" placeholder="Your Comment">{{body}}</textarea>
+        		</div>
+        		<button id="postBtn" class="ui fluid black button">
+					SUBMIT
+				</button>
+				<a id="cancelBtn" class="ui fluid button" href="/{{post.key().id()}}">CANCEL</a>
+     		</div>
+    	</form>
+	</div>
+</div>
+
+{% endblock %}

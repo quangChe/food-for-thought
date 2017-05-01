@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="ui middle aligned center aligned grid">
+	<div class="column">
+	    <h2 class="ui header">Sign up for an account:</h2>
+
+		<form method="POST" class="ui large form">
+      		<div class="ui stacked segment">
+        		<div class="field">
+          			<div class="ui left icon input">
+            			<i class="user icon"></i>
+            			<input type="text" name="username" value="{{username}}" placeholder="Create Username">
+          			</div>
+					<span class="error-msg">{{username_error}}</span>
+        		</div>
+        		<div class="field">
+          			<div class="ui left icon input">
+            			<i class="lock icon"></i>
+            			<input type="password" name="password" placeholder="Create Password">
+          			</div>
+					<span class="error-msg">{{pw_error}}</span>
+        		</div>
+        		<div class="field">
+          			<div class="ui left icon input">
+            			<i class="checkmark icon"></i>
+            			<input type="password" name="verify" placeholder="Confirm Password">
+          			</div>
+					<span class="error-msg">{{pw_ver_error}}</span>
+        		</div>
+        		<div class="field">
+          			<div class="ui left icon input">
+            			<i class="mail icon"></i>
+            			<input type="text" name="email" value="{{email}}" placeholder="Email (Optional)">
+          			</div>
+					<span class="error-msg">{{email_error}}</span>
+        		</div>
+        		<input type="submit" id="signUp" class="ui fluid black submit button" value="Sign Up">
+     		</div>
+    	</form>
+
+    	<div class="ui message">
+      		Already have an account? <a href="/login">Log In!</a>
+    	</div>
+	</div>
+</div>
+
+{% endblock %}
