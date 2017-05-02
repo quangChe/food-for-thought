@@ -68,26 +68,6 @@ def check_pw(name, pw, h):
     salt = h.split('|')[0]
     return h == make_pw_hash(name, pw, salt)
 
-# =================
-# SIGNUP VALIDATION
-# =================
-USER_RE = re.compile("^[a-zA-Z0-9_-]{3,20}$")
-def valid_user(username):
-    """Validates username inputs"""
-    return username and USER_RE.match(username)
-
-PW_RE = re.compile("^.{3,20}$")
-def valid_pw(password):
-    """Validates password inputs"""
-    return password and PW_RE.match(password)
-
-EMAIL_RE = re.compile("^[\S]+@[\S]+.[\S]+$")
-def valid_email(email):
-    """Validates email inputs"""
-    if email:
-        return EMAIL_RE.match(email)
-    if not email:
-        return True
 
 # ====================================
 # BASE HANDLER & CONVENIENCE FUNCTIONS
@@ -244,7 +224,7 @@ class HomePage(BaseHandler):
         posts = Posts.get_all()
         has_posts = False
         for post in posts:
-            if post:
+            if post != None:
                 has_posts = True
 
         self.render('home.html', posts = posts, has_posts = has_posts)
@@ -261,6 +241,28 @@ class SignupPage(BaseHandler):
     a new user object to the database and set a secure cookie of the
     user's session.
     """
+
+    # Validation for user signup info:
+    USER_RE = re.compile("^[a-zA-Z0-9_-]{3,20}$")
+    def valid_user(username):
+        """Validates username inputs"""
+        return username and USER_RE.match(username)
+
+    PW_RE = re.compile("^.{3,20}$")
+    def valid_pw(password):
+        """Validates password inputs"""
+        return password and PW_RE.match(password)
+
+    EMAIL_RE = re.compile("^[\S]+@[\S]+.[\S]+$")
+    def valid_email(email):
+        """Validates email inputs"""
+        if email:
+            return EMAIL_RE.match(email)
+        if not email:
+            return True
+
+
+    #Request handing for the route:
     def get(self):
         if not self.user:
             self.render('signup.html')
@@ -268,45 +270,45 @@ class SignupPage(BaseHandler):
             self.error(404)
 
     def post(self):
-        username = self.request.get('username')
-        password = self.request.get('password')
-        verify = self.request.get('verify')
-        email = self.request.get('email')
+        if not self.user:
+            username = self.request.get('username')
+            password = self.request.get('password')
+            verify = self.request.get('verify')
+            email = self.request.get('email')
 
-        params = dict(username = username,
-                        email = email)
+            params = dict(username = username,
+                            email = email)
 
-        have_error = False
+            have_error = False
 
-        if not valid_user(username):
-            params['username_error'] = 'Please enter a valid username.'
-            have_error = True
+            #Validate user signup info:
+            if not valid_user(username):
+                params['username_error'] = 'Please enter a valid username.'
+                have_error = True
+            if not valid_pw(password):
+                params['pw_error'] = 'Please enter a valid password.'
+                have_error = True
+            elif password != verify:
+                params['pw_ver_error'] = 'Please make sure your passwords match.'
+                have_error = True
+            if not valid_email(email):
+                params['email_error'] = 'Please enter a valid email.'
+                have_error = True
 
-        if not valid_pw(password):
-            params['pw_error'] = 'Please enter a valid password.'
-            have_error = True
-        elif password != verify:
-            params['pw_ver_error'] = 'Please make sure your passwords match.'
-            have_error = True
-
-        if not valid_email(email):
-            params['email_error'] = 'Please enter a valid email.'
-            have_error = True
-
-        if have_error:
-            self.render('signup.html', **params)
-        else:
-            name_exists = Users.by_name(str(username))
-            if name_exists:
-                error = "Username already exists."
-                self.render("signup.html", username = username,
-                                            username_error = error)
+            if have_error:
+                self.render('signup.html', **params)
             else:
-                new_user = Users.register(username, password, email)
-                new_user.put()
+                name_exists = Users.by_name(str(username))
+                if name_exists:
+                    error = "Username already exists."
+                    self.render("signup.html", username = username,
+                                                username_error = error)
+                else:
+                    new_user = Users.register(username, password, email)
+                    new_user.put()
 
-                self.login_cookie_set(new_user)
-                self.redirect('/welcome')
+                    self.login_cookie_set(new_user)
+                    self.redirect('/welcome')
 
 # ==========
 # LOGIN PAGE
@@ -340,16 +342,17 @@ class LoginPage(BaseHandler):
             self.error(404)
 
     def post(self):
-        username = self.request.get('username')
-        password = self.request.get('password')
+        if not self.user:
+            username = self.request.get('username')
+            password = self.request.get('password')
 
-        logger = Users.login(username, password)
+            logger = Users.login(username, password)
 
-        if logger:
-            self.login_cookie_set(logger)
-            self.redirect('/welcome')
-        else:
-            self.redirect('/login?error=2')
+            if logger:
+                self.login_cookie_set(logger)
+                self.redirect('/welcome')
+            else:
+                self.redirect('/login?error=2')
 
 # ============
 # WELCOME PAGE
@@ -360,24 +363,27 @@ class WelcomePage(BaseHandler):
     displays user's name and a list of their posts.
     """
     def get(self):
-        dlt_notice = self.request.get('notice')
         if self.user:
             user = self.user.username
             posts = Posts.get_by_poster(user)
+            dlt_notice = self.request.get('notice')
             has_posts = False
-            for post in posts:
-                if post:
-                    has_posts = True
-            params = dict(posts = posts,
-                            has_posts = has_posts)
 
-            if dlt_notice:
-                params['redirect_msg'] = "A post has been deleted!"
+            if posts != None:
+                for post in posts:
+                    if post:
+                        has_posts = True
 
-            self.render('welcome.html', **params)
+                params = dict(posts = posts,
+                                has_posts = has_posts)
+
+                if dlt_notice:
+                    params['redirect_msg'] = "A post has been deleted!"
+
+                self.render('welcome.html', **params)
 
         else:
-            self.redirect('/signup')
+            self.redirect('/login?error=1')
 
 # ===========
 # LOGOUT PAGE
@@ -405,22 +411,22 @@ class NewPostPage(BaseHandler):
             self.redirect('/login?error=1')
 
     def post(self):
-        body = self.request.get('body')
+        if self.user:
+            body = self.request.get('body')
 
-        params = dict(body = body)
+            params = dict(body = body)
 
-        if body:
-            poster = self.user.username
-            new_post = Posts(body = body, poster = poster)
-            new_post.put()
-            post_id = new_post.key().id()
+            if body:
+                poster = self.user.username
+                new_post = Posts(body = body, poster = poster)
+                new_post.put()
+                post_id = new_post.key().id()
+                time.sleep(.1)
+                self.redirect("/%s" % post_id)
 
-            time.sleep(.1)
-            self.redirect("/%s" % post_id)
-
-        else:
-            params['error'] = "Your post must contain some text!"
-            self.render("newpost.html", **params)
+            else:
+                params['error'] = "There is an error with your post!"
+                self.render("newpost.html", **params)
 
 # ==============
 # VIEW POST PAGE
@@ -433,28 +439,28 @@ class ViewPostPage(BaseHandler):
     def get(self, post_id):
         if self.user:
             post = Posts.get_by_id(int(post_id))
-            comments = post.comments
-            has_comment = False
-
-            for comment in comments:
-                if comment:
-                    has_comment = True
-
-            params = dict(post = post,
-                            comments = comments,
-                            has_comment = has_comment)
-
             error = self.request.get('error')
             notice = self.request.get('notice')
-            if error:
-                if error == "1":
-                    params['redirect_msg'] = "You've already upvoted this thought!"
-                elif error == "2":
-                    params['redirect_msg'] = "You cannot upvote your own thought!"
-            elif notice:
-                params['redirect_msg'] = "Your comment has been deleted."
+            has_comment = False
 
-            self.render('viewpost.html', **params)
+            if post != None:
+                comments = post.comments
+                for comment in comments:
+                    if comment:
+                        has_comment = True
+
+                params = dict(post = post,
+                                comments = comments,
+                                has_comment = has_comment)
+                if error:
+                    if error == "1":
+                        params['redirect_msg'] = "You've already upvoted this thought!"
+                    elif error == "2":
+                        params['redirect_msg'] = "You cannot upvote your own thought!"
+                elif notice:
+                    params['redirect_msg'] = "Your comment has been deleted."
+
+                self.render('viewpost.html', **params)
         else:
             self.redirect('/login?error=1')
 
@@ -469,28 +475,29 @@ class EditPostPage(BaseHandler):
     the updated content shown.
     """
     def get(self, post_id):
-        post = Posts.get_by_id(int(post_id))
-        if post.poster == self.user.username:
-            self.render('edit.html', post = post)
+        if self.user:
+            post = Posts.get_by_id(int(post_id))
+
+            if post != None:
+                if post.poster == self.user.username:
+                    self.render('edit.html', post = post)
         else:
             self.error(404)
 
     def post(self, post_id):
-        new_body = self.request.get('body')
-        post = Posts.get_by_id(int(post_id))
+        if self.user:
+            post = Posts.get_by_id(int(post_id))
+            new_body = self.request.get('body')
 
-        params = dict(body = post.body)
+            if new_body and (post != None):
+                post.body = new_body
+                post.put()
+                time.sleep(.1)
+                self.redirect("/%s" % post_id)
 
-        if new_body:
-            post.body = new_body
-            post.put()
-
-            time.sleep(.1)
-            self.redirect("/%s" % post_id)
-
-        else:
-            params['error'] = "Your post must contain some text!"
-            self.render('edit.html', **params)
+            else:
+                error = "There is an error with your post content."
+                self.render('edit.html', error = error)
 
 # ================
 # DELETE POST PAGE
@@ -503,12 +510,14 @@ class DltPostPage(BaseHandler):
     a notice confirming the delete.
     """
     def get(self, post_id):
-        post = Posts.get_by_id(int(post_id))
-        if post.poster == self.user.username:
-            post.delete()
+        if self.user:
+            post = Posts.get_by_id(int(post_id))
 
-            time.sleep(.1)
-            self.redirect('/welcome?notice=dlt')
+            if post != None:
+                if post.poster == self.user.username:
+                    post.delete()
+                    time.sleep(.1)
+                    self.redirect('/welcome?notice=dlt')
         else:
             self.error(404)
 
@@ -528,25 +537,25 @@ class DigestPage(BaseHandler):
         if self.user:
             post = Posts.get_by_id(int(post_id))
             user = self.user.username
-            voters = post.voters
 
-            for voter in voters:
-                if voter.username == user:
-                    self.redirect('/%s?error=1' % post_id)
-                    return
+            if post != None:
+                voters = post.voters
+                for voter in voters:
+                    if voter.username == user:
+                        self.redirect('/%s?error=1' % post_id)
+                        return
 
-            if post.poster == user:
-                self.redirect('/%s?error=2' % post_id)
+                if post.poster == user:
+                    self.redirect('/%s?error=2' % post_id)
 
-            else:
-                post.digests += 1
-                new_voter = PostVoters(post = post,
-                                        username = user)
-                new_voter.put()
-                post.put()
-
-                time.sleep(.1)
-                self.redirect('/%s' % post_id)
+                else:
+                    post.digests += 1
+                    new_voter = PostVoters(post = post,
+                                            username = user)
+                    new_voter.put()
+                    post.put()
+                    time.sleep(.1)
+                    self.redirect('/%s' % post_id)
 
         else:
             self.redirect('/login?error=1')
@@ -561,33 +570,36 @@ class AddCommentPage(BaseHandler):
     exists only for that post.
     """
     def get(self, post_id):
-        post = Posts.get_by_id(int(post_id))
-        params = dict(post = post)
-
         if self.user:
+            post = Posts.get_by_id(int(post_id))
             error = self.request.get('error')
-            if error:
-                params['redirect_msg'] = "Invalid comment!"
-            self.render('comment.html', **params)
+
+            if post != None:
+                params = dict(post = post)
+
+                if error:
+                    params['redirect_msg'] = "Invalid comment!"
+
+                self.render('comment.html', **params)
 
         else:
             self.redirect('/login?error=1')
 
     def post(self, post_id):
-        post = Posts.get_by_id(int(post_id))
-        poster = self.user.username
-        body = self.request.get('body')
+        if self.user:
+            post = Posts.get_by_id(int(post_id))
+            poster = self.user.username
+            body = self.request.get('body')
 
-        if body:
-            new_comment = Comments(post = post,
-                                body = body,
-                                poster = poster)
-            new_comment.put()
-            time.sleep(.1)
-
-            self.redirect('/%s' % post_id)
-        else:
-            self.redirect('/%s/addcomment' % post_id)
+            if (post != None) and body:
+                new_comment = Comments(post = post,
+                                    body = body,
+                                    poster = poster)
+                new_comment.put()
+                time.sleep(.1)
+                self.redirect('/%s' % post_id)
+            else:
+                self.redirect('/%s/addcomment' % post_id)
 
 # =================
 # EDIT COMMENT PAGE
@@ -599,36 +611,39 @@ class EditCommentPage(BaseHandler):
     display page for the post which the comment references.
     """
     def get(self, post_id, comment_id):
-        post = Posts.get_by_id(int(post_id))
-        comment = Comments.get_by_id(int(comment_id))
-        params = dict(post = post, comment = comment)
-        error = self.request.get('error')
-        if comment.poster == self.user.username:
-            if error:
-                params['redirect_msg'] = "You comment must contain "
-                "some content!"
+        if self.user:
+            post = Posts.get_by_id(int(post_id))
+            comment = Comments.get_by_id(int(comment_id))
+            error = self.request.get('error')
 
-            self.render('comment_edit.html', **params)
+            if (post != None) and (comment != None):
+                params = dict(post = post, comment = comment)
+                if comment.poster == self.user.username:
+                    if error:
+                        params['redirect_msg'] = ("There was an error posting "
+                                                    "the comment.")
+
+                    self.render('comment_edit.html', **params)
 
         else:
             self.error(404)
 
     def post(self, post_id, comment_id):
-        new_body = self.request.get('body')
-        post = Posts.get_by_id(int(post_id))
-        for comment in post.comments:
-            if comment.key().id() == int(comment_id):
-                edit_comment = comment.get_by_id(int(comment_id))
+        if self.user:
+            new_body = self.request.get('body')
+            post = Posts.get_by_id(int(post_id))
+            comment = Comments.get_by_id(int(comment_id))
 
+            if new_body and (post != None) and (comment != None):
+                comment.body = new_body
+                comment.put()
+                time.sleep(.1)
+                self.redirect('/%s' % post_id)
+            else:
+                self.redirect('/%s/%s/edit?error=!' % (post_id, comment_id))
 
-        if new_body:
-            edit_comment.body = new_body
-            edit_comment.put()
-
-            time.sleep(.1)
-            self.redirect('/%s' % post_id)
         else:
-            self.redirect('/%s/%s/edit?error=!' % (post_id, comment_id))
+            self.error(404)
 
 # ===================
 # DELETE COMMENT PAGE
@@ -639,13 +654,16 @@ class DltCommentPage(BaseHandler):
     display page of that comment's post with a delete notice.
     """
     def get(self, post_id, comment_id):
-        post = Posts.get_by_id(int(post_id))
-        comment = Comments.get_by_id(int(comment_id))
-        if self.user.username == comment.poster:
-            comment.delete()
+        if self.user:
+            post = Posts.get_by_id(int(post_id))
+            comment = Comments.get_by_id(int(comment_id))
 
-            time.sleep(.1)
-            self.redirect('/%s?notice=dlt' % post_id)
+            if (comment != None) and (post != None):
+
+                if self.user.username == comment.poster:
+                    comment.delete()
+                    time.sleep(.1)
+                    self.redirect('/%s?notice=dlt' % post_id)
         else:
             self.error(404)
 

@@ -2,7 +2,7 @@
 
 body {
     font-family: "Josefin Sans"!important;
-    width: 100%;
+    width: 100%!important;
     height: 70%!important;
     background-color: #ddd!important;
 }
@@ -178,7 +178,7 @@ p.homeDigest>span {
 /*Login & Signup (login.html/signup.html)*/
 
 #login, #signUp {
-    font-size: 1.2em;
+    font-size: 1.2em!important;
 }
 
 .ui.grid[class*="middle aligned"]>.column:not(.row) {
@@ -295,7 +295,6 @@ p.welcomeDigest>span {
 #digestDiv {
     font-size: 1.3em!important;
     margin-bottom: 20px!important;
-    margin-right: 35px!important;
 }
 #digestBtn {
     margin-right: 0;
