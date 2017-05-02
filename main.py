@@ -333,7 +333,7 @@ class LoginPage(BaseHandler):
                 if error == '1':
                     redirect_msg = "You must be logged in to do that!"
                 elif error == '2':
-                    redirect_msg = ("Invalid login. Please check your
+                    redirect_msg = ("Invalid login. Please check your "
                                     "username and password.")
 
                 self.render("login.html", redirect_msg = redirect_msg)
@@ -461,8 +461,8 @@ class ViewPostPage(BaseHandler):
                                 has_comment = has_comment)
                 if error:
                     if error == "1":
-                        params['redirect_msg'] = ("You've already upvoted this
-                                                    " thought!")
+                        params['redirect_msg'] = ("You've cannot vote more"
+                                                    " than once!")
                     elif error == "2":
                         params['redirect_msg'] = ("You cannot upvote your own"
                                                     " thought!")
