@@ -428,6 +428,9 @@ class NewPostPage(BaseHandler):
                 params['error'] = "There is an error with your post!"
                 self.render("newpost.html", **params)
 
+        else:
+            self.redirect('/login?error=1')
+
 # ==============
 # VIEW POST PAGE
 # ==============
@@ -482,7 +485,7 @@ class EditPostPage(BaseHandler):
                 if post.poster == self.user.username:
                     self.render('edit.html', post = post)
         else:
-            self.error(404)
+            self.redirect('/login?error=1')
 
     def post(self, post_id):
         if self.user:
@@ -498,6 +501,9 @@ class EditPostPage(BaseHandler):
             else:
                 error = "There is an error with your post content."
                 self.render('edit.html', error = error)
+
+        else:
+            self.redirect('/login?error=1')
 
 # ================
 # DELETE POST PAGE
@@ -519,7 +525,7 @@ class DltPostPage(BaseHandler):
                     time.sleep(.1)
                     self.redirect('/welcome?notice=dlt')
         else:
-            self.error(404)
+            self.redirect('/login?error=1')
 
 # ================
 # DIGEST POST PAGE
@@ -601,6 +607,9 @@ class AddCommentPage(BaseHandler):
             else:
                 self.redirect('/%s/addcomment' % post_id)
 
+        else:
+            self.redirect('/login?error=1')
+
 # =================
 # EDIT COMMENT PAGE
 # =================
@@ -626,7 +635,7 @@ class EditCommentPage(BaseHandler):
                     self.render('comment_edit.html', **params)
 
         else:
-            self.error(404)
+            self.redirect('/login?error=1')
 
     def post(self, post_id, comment_id):
         if self.user:
@@ -643,7 +652,7 @@ class EditCommentPage(BaseHandler):
                 self.redirect('/%s/%s/edit?error=!' % (post_id, comment_id))
 
         else:
-            self.error(404)
+            self.redirect('/login?error=1')
 
 # ===================
 # DELETE COMMENT PAGE
@@ -665,7 +674,7 @@ class DltCommentPage(BaseHandler):
                     time.sleep(.1)
                     self.redirect('/%s?notice=dlt' % post_id)
         else:
-            self.error(404)
+            self.redirect('/login?error=1')
 
 # ==============
 # HANDLER ROUTES
