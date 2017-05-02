@@ -55,8 +55,9 @@ def make_salt():
     return ''.join(random.choice(string.letters) for x in xrange(5))
 
 def make_pw_hash(name, pw, salt=None):
-    """Combines username, password and a salt hash password and returns string:
-    'salt|pw_hash_hexadecimal'"""
+    """Combines username, password and a salt hash password and returns
+    string: 'salt|pw_hash_hexadecimal'
+    """
     if not salt:
         salt = make_salt()
     h = hashlib.sha256(name + pw + salt).hexdigest()
@@ -90,7 +91,8 @@ class BaseHandler(webapp2.RequestHandler):
         return render_str(template, **params)
 
     def render(self, template, **kw):
-        """Convenience function for rendering pages with specific parameters"""
+        """Convenience function for rendering pages with specific parameters
+        """
         self.write(self.render_str(template, **kw))
 
     # B. Cookies setting and verifying handlers
@@ -289,7 +291,8 @@ class SignupPage(BaseHandler):
                 params['pw_error'] = 'Please enter a valid password.'
                 have_error = True
             elif password != verify:
-                params['pw_ver_error'] = 'Please make sure your passwords match.'
+                params['pw_ver_error'] = ('Please make sure your passwords '
+                                            'match.')
                 have_error = True
             if not valid_email(email):
                 params['email_error'] = 'Please enter a valid email.'
@@ -330,8 +333,8 @@ class LoginPage(BaseHandler):
                 if error == '1':
                     redirect_msg = "You must be logged in to do that!"
                 elif error == '2':
-                    redirect_msg = ("Invalid login. Please check your username "
-                                    " and password.")
+                    redirect_msg = ("Invalid login. Please check your
+                                    "username and password.")
 
                 self.render("login.html", redirect_msg = redirect_msg)
 
@@ -359,8 +362,8 @@ class LoginPage(BaseHandler):
 # ============
 class WelcomePage(BaseHandler):
     """This is the handler for the welcome page that the user is redirected to
-    upon successful signup/login. This page is also the user's profile page and
-    displays user's name and a list of their posts.
+    upon successful signup/login. This page is also the user's profile page
+    and displays user's name and a list of their posts.
     """
     def get(self):
         if self.user:
@@ -403,7 +406,8 @@ class LogoutPage(BaseHandler):
 # =============
 class NewPostPage(BaseHandler):
     """This is the handler for the new post page that can only be accessed
-    if user is logged in and creats a new post that is submitted to the db."""
+    if user is logged in and creats a new post that is submitted to the db.
+    """
     def get(self):
         if self.user:
             self.render('newpost.html')
@@ -457,9 +461,11 @@ class ViewPostPage(BaseHandler):
                                 has_comment = has_comment)
                 if error:
                     if error == "1":
-                        params['redirect_msg'] = "You've already upvoted this thought!"
+                        params['redirect_msg'] = ("You've already upvoted this
+                                                    " thought!")
                     elif error == "2":
-                        params['redirect_msg'] = "You cannot upvote your own thought!"
+                        params['redirect_msg'] = ("You cannot upvote your own"
+                                                    " thought!")
                 elif notice:
                     params['redirect_msg'] = "Your comment has been deleted."
 
@@ -571,9 +577,9 @@ class DigestPage(BaseHandler):
 # ADD COMMENT PAGE
 # ================
 class AddCommentPage(BaseHandler):
-    """This handler renders the form for comments which can only be accessed if
-    the user is logged in. The comments are posted under a specific post and
-    exists only for that post.
+    """This handler renders the form for comments which can only be accessed
+    if the user is logged in. The comments are posted under a specific post
+    and exists only for that post.
     """
     def get(self, post_id):
         if self.user:
