@@ -589,7 +589,7 @@ class DigestPage(BaseHandler):
                         self.redirect('/%s?error=1' % post_id)
                         return
 
-                if user_owns_post(post):
+                if self.user_owns_post(post):
                     self.redirect('/%s?error=2' % post_id)
 
                 else:
