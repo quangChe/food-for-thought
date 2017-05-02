@@ -262,19 +262,19 @@ class SignupPage(BaseHandler):
     """
 
     # Validation for user signup info:
-    USER_RE = re.compile("^[a-zA-Z0-9_-]{3,20}$")
-    def valid_user(username):
+    def valid_user(self, username):
         """Validates username inputs"""
+        USER_RE = re.compile("^[a-zA-Z0-9_-]{3,20}$")
         return username and USER_RE.match(username)
 
-    PW_RE = re.compile("^.{3,20}$")
-    def valid_pw(password):
+    def valid_pw(self, password):
         """Validates password inputs"""
+        PW_RE = re.compile("^.{3,20}$")
         return password and PW_RE.match(password)
 
-    EMAIL_RE = re.compile("^[\S]+@[\S]+.[\S]+$")
-    def valid_email(email):
+    def valid_email(self, email):
         """Validates email inputs"""
+        EMAIL_RE = re.compile("^[\S]+@[\S]+.[\S]+$")
         if email:
             return EMAIL_RE.match(email)
         if not email:
@@ -301,17 +301,17 @@ class SignupPage(BaseHandler):
             have_error = False
 
             #Validate user signup info:
-            if not valid_user(username):
+            if not self.valid_user(username):
                 params['username_error'] = 'Please enter a valid username.'
                 have_error = True
-            if not valid_pw(password):
+            if not self.valid_pw(password):
                 params['pw_error'] = 'Please enter a valid password.'
                 have_error = True
             elif password != verify:
                 params['pw_ver_error'] = ('Please make sure your passwords '
                                             'match.')
                 have_error = True
-            if not valid_email(email):
+            if not self.valid_email(email):
                 params['email_error'] = 'Please enter a valid email.'
                 have_error = True
 
